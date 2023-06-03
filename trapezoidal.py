@@ -6,7 +6,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from utils import set_base_log_level, put_text_on_image
+from utils import put_text_on_image, set_base_log_level
 
 
 def _retrieve_args():
@@ -67,7 +67,7 @@ def draw_lines(image: np.ndarray, plist: list[tuple[int, int]]) -> np.ndarray:
 
 def on_mouse(event, x, y, flags, params) -> None:
     img: np.ndarray = params["image"].copy()
-    wname: str = params["window_name"]
+    # wname: str = params["window_name"]
     plist: list[tuple[int, int]] = params["point_list"]
 
     # add point
@@ -118,14 +118,11 @@ def main(input_file: Path, output_file: Path, verbose: int) -> None:
     # 比率調整
     w_ratio = 1.1
 
-    # 出力画像のパス
-    output_file_path = "./data/output.jpg"
-
     # 変換前4点の座標　p1:左上　p2:右上 p3:左下 p4:左下
     p1 = np.array([267, 960])
     p2 = np.array([2544, 378])
     p3 = np.array([216, 1494])
-    p4 = np.array([2592, 1053])
+    # p4 = np.array([2592, 1053])
 
     # 入力画像の読み込み
     img = cv2.imread(str(input_file))
@@ -139,14 +136,7 @@ def main(input_file: Path, output_file: Path, verbose: int) -> None:
     o_height = math.floor(o_height)
 
     src_points = obtain_polygon(img)
-
-
-    import ipdb
-
-    ipdb.set_trace()
-
-    # 変換前の4点
-    src = np.float32([p1, p2, p3, p4])
+    logger.debug("{src_points=}")
 
     # 変換後の4点
     dst = np.float32(
@@ -159,8 +149,8 @@ def main(input_file: Path, output_file: Path, verbose: int) -> None:
     # 射影変換・透視変換する
     output = cv2.warpPerspective(img, M, (o_width, o_height))
 
-    if output_path is not None:
-        cv2.imwrite(output_file_path, output)
+    if output_file is not None:
+        cv2.imwrite(str(output_file), output)
 
 
 if __name__ == "__main__":
